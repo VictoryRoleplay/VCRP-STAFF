@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VCRP Staff Team</title>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script> <!-- Ikony -->
+    <style>
+        body { font-family: Arial, sans-serif; background: #2c2f33; color: white; text-align: center; padding: 20px; }
+        h1 { color: #ff4d4d; } /* Červený nadpis */
+        
+        .carousel-container { display: flex; align-items: center; justify-content: center; margin-top: 20px; }
+        .carousel { display: flex; overflow: hidden; width: 700px; justify-content: space-between; }
+        
+        .member-container { display: flex; min-width: 700px; justify-content: space-between; gap: 5px; } /* 1 cm medzera */
+        .member-card { background: #ff4d4d; padding: 15px; border-radius: 15px; width: 250px; text-align: center; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); }
+        .member-card img { width: 100px; height: 100px; border-radius: 50%; border: 3px solid white; }
+        .member-card h3 { margin: 10px 0; }
+        .role { color: white; font-size: 14px; }
+        
+        /* Šípky */
+        .arrow { 
+            font-size: 30px; 
+            cursor: pointer; 
+            padding: 10px 15px; 
+            user-select: none; 
+            color: white; 
+            background: transparent; 
+            border: 2px solid white; 
+            border-radius: 5px; 
+            transition: 0.3s; 
+            margin: 0 10px; /* Odsadenie od kariet */
+        }
+        .arrow:hover { background: rgba(255, 255, 255, 0.2); } /* Efekt pri hover */
+    </style>
+</head>
+<body>
+    <h1>VCRP Staff Team</h1>
+    <div class="carousel-container">
+        <button class="arrow" onclick="prevSlide()">&#60;</button>
+        <div class="carousel" id="carousel"></div>
+        <button class="arrow" onclick="nextSlide()">&#62;</button>
+    </div>
+
+    <script>
+        let membersData = [];
+        let currentIndex = 0;
+
+        async function fetchMembers() {
+            try {
+                const response = await fetch("http://localhost:3000/members");
+                membersData = await response.json();
+                renderCarousel();
+            } catch (error) {
+                console.error("Chyba pri načítaní členov:", error);
+            }
+        }
+
+        function renderCarousel() {
+            const carousel = document.getElementById("carousel");
+            carousel.innerHTML = "";
+
+            // Vždy zobrazí DVOCH členov naraz
+            const container = document.createElement("div");
+            container.className = "member-container";
+            for (let i = currentIndex; i < currentIndex + 2 && i < membersData.length; i++) {
+                const member = membersData[i];
+                const card = document.createElement("div");
+                card.className = "member-card";
+                card.innerHTML = `
+                    <img src="${member.avatar}" alt="${member.username}">
+                    <h3>${member.username}</h3>
+                    <p class="role">${member.roles.join(", ")}</p>
+                `;
+                container.appendChild(card);
+            }
+            carousel.appendChild(container);
+        }
+
+        function nextSlide() {
+            if (currentIndex + 2 < membersData.length) {
+                currentIndex += 2;
+                renderCarousel();
+            }
+        }
+
+        function prevSlide() {
+            if (currentIndex - 2 >= 0) {
+                currentIndex -= 2;
+                renderCarousel();
+            }
+        }
+
+        fetchMembers();
+    </script>
+</body>
+</html>
